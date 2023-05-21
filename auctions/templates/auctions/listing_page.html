@@ -1,0 +1,14 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<ul>
+     <li>
+        {% load static %} 
+        <h3>{{ listing.title }}</h3>
+        <img src="{{ listing.image_url }}" alt="{{ listing.title }}">
+        <p>{{ listing.description }}</p>
+        <p>Current Price: {{ listing.start_bid }}</p>
+    </li>
+</ul>
+
+{% endblock %}
