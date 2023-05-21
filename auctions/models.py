@@ -30,6 +30,8 @@ class AuctionListing(models.Model):
     image_url = models.URLField(blank=True)
     category = models.CharField(max_length=12, choices= CATEGORY)
 
+    def __str__(self):
+        return f"{self.id}: {self.title}"
 
 class Bids(models.Model):
     pass

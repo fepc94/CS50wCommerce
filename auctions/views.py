@@ -66,6 +66,10 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
+def listing_page(request, listing_id):
+    listing = AuctionListing.objects.get(pk=listing_id)
+    return render(request, 'auctions/listing_page.html', {'listing' : listing})
+
 @login_required
 def new_listing(request):
     if request.method == 'POST':
@@ -78,3 +82,4 @@ def new_listing(request):
         form = NewListing()
     
     return render(request, 'auctions/new_listing.html', {'form' : form})
+
