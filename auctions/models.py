@@ -33,6 +33,13 @@ class AuctionListing(models.Model):
     def __str__(self):
         return f"{self.id}: {self.title}"
 
+class Watchlist(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    listings = models.ManyToManyField(AuctionListing)
+
+    def __str__(self):
+        return f"Watchlist {self.id} - User: {self.user.username}"
+  
 class Bids(models.Model):
     pass
 
