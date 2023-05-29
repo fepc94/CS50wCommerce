@@ -82,7 +82,10 @@ def new_listing(request):
         form = NewListing(request.POST)
 
         if form.is_valid():
-            form.save()
+            listing = form.save()
+            # take into account what user is creating the listing
+            listing.created_by = request.user
+            listing.save()
             return HttpResponseRedirect(reverse('index'))
     else:
         form = NewListing()
