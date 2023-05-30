@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from .models import AuctionListing, Watchlist
-from .forms import NewListing
+from .forms import NewListing, PlaceBid
 
 from .models import User
 
@@ -74,7 +74,8 @@ def register(request):
 
 def listing_page(request, listing_id):
     listing = AuctionListing.objects.get(pk=listing_id)
-    return render(request, 'auctions/listing_page.html', {'listing' : listing})
+    form = PlaceBid()
+    return render(request, 'auctions/listing_page.html', {'listing' : listing, 'form' : form })
 
 @login_required
 def new_listing(request):
@@ -109,3 +110,31 @@ def remove_watchlist(request, listing_id):
     if listing in request.user.watchlist.listings.all():
         request.user.watchlist.listings.remove(listing)
     return HttpResponseRedirect(reverse('index'))
+
+@login_required
+def set_bid(request, listing_id):
+    if request.method == 'POST':
+        form = PlaceBid(request.POST)
+
+        if form.is_valid():
+            new_bid = form.save()
+            #Track the user that place the bid
+            new_bid.user = request.user
+            new_bid.save()
+            listing = AuctionListing.objects.get(pk=listing_id)
+
+            if new_bid.place_bid > listing.start_bid:
+                listing.start_bid = new_bid.place_bid
+                listing.save()
+                return HttpResponseRedirect(reverse('listing_page', args=[listing_id]))
+            else:
+                error_message = "Your bid must be higher than the current price."
+                form.add_error('place_bid', error_message)
+    else: 
+        form = PlaceBid()
+
+    return render(request, 'auctions/listing_page.html', {'form': form, 'listing': listing})
+
+
+
+        

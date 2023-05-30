@@ -42,7 +42,9 @@ class Watchlist(models.Model):
         return f"Watchlist {self.id} - User: {self.user.username}"
   
 class Bids(models.Model):
-    pass
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    place_bid = models.DecimalField(max_digits=10, decimal_places=2)
+    listings = models.ManyToManyField(AuctionListing)
 
 class Comments(models.Model):
     pass

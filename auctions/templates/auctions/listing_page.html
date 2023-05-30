@@ -21,9 +21,26 @@
         <h4>Item description from the seller</h4>
         <p>{{ listing.description }}</p>
         <p>Current Price: {{ listing.start_bid }}</p>
+        {% if user.is_authenticated %}
+            {% if not bid_placed %}
+                <form method="post" action="{% url 'set_bid' listing.id %}">
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                             {{ form.errors.place_bid }}
+                        </div>
+                    {% endif %}
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit">Place Bid</button>
+                </form>
+            {% endif %}
+        {% endif %}
         <p>Category: {{ listing.category }}</p>
         <p>Published by: {{ listing.created_by.username }}</p>
     </li>
 </ul>
+
+<!---  Acá hay que ver que pasa cuando no hay imagen y que pasa cuando no hay 
+       categoría.  -->
 
 {% endblock %}
