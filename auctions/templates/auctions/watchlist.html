@@ -1,0 +1,23 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Watchlist</h2>
+
+    {% if watchlist %}
+    <ul>
+        {% for listing in watchlist %}
+        <li> 
+            {% load static %} 
+            <h3><a href="{% url 'listing_page' listing.id %}">{{ listing.title }}</a></h3>
+            <img src="{{ listing.image_url }}" alt="{{ listing.title }}">
+            <p>{{ listing.description }}</p>
+            <p>Current Price: {{ listing.start_bid }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p>There are no listings on watchlists.</p>
+    {% endif %}
+    
+    
+{% endblock %}

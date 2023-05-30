@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from .models import AuctionListing
+from .models import AuctionListing, Watchlist
 from .forms import NewListing
 
 from .models import User
@@ -26,6 +26,12 @@ def login_view(request):
         # Check if authentication successful
         if user is not None:
             login(request, user)
+
+            # create a watchlist for every user
+            try:
+                watchlist = Watchlist.objects.get(user=user)
+            except Watchlist.DoesNotExist:
+                watchlist = Watchlist.objects.create(user=user)
             return HttpResponseRedirect(reverse("index"))
         else:
             return render(request, "auctions/login.html", {
@@ -61,7 +67,7 @@ def register(request):
             return render(request, "auctions/register.html", {
                 "message": "Username already taken."
             })
-        login(request, user)
+        login(request, user)            
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
@@ -76,10 +82,30 @@ def new_listing(request):
         form = NewListing(request.POST)
 
         if form.is_valid():
-            form.save()
+            listing = form.save()
+            # take into account what user is creating the listing
+            listing.created_by = request.user
+            listing.save()
             return HttpResponseRedirect(reverse('index'))
     else:
         form = NewListing()
     
     return render(request, 'auctions/new_listing.html', {'form' : form})
 
+@login_required
+def watchlist(request):
+    watchlist = request.user.watchlist.listings.all()
+    return render(request, 'auctions/watchlist.html', {'watchlist' : watchlist})
+
+@login_required
+def add_watchlist(request, listing_id):
+    listing = AuctionListing.objects.get(pk=listing_id)
+    request.user.watchlist.listings.add(listing)
+    return HttpResponseRedirect(reverse('index'))
+
+@login_required
+def remove_watchlist(request, listing_id):
+    listing = AuctionListing.objects.get(pk=listing_id)
+    if listing in request.user.watchlist.listings.all():
+        request.user.watchlist.listings.remove(listing)
+    return HttpResponseRedirect(reverse('index'))

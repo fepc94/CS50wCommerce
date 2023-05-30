@@ -28,11 +28,19 @@ class AuctionListing(models.Model):
     description = models.TextField(max_length=800)
     start_bid = models.DecimalField(max_digits=10, decimal_places=2)
     image_url = models.URLField(blank=True)
-    category = models.CharField(max_length=12, choices= CATEGORY)
+    category = models.CharField(max_length=12, choices= CATEGORY, blank=True, default='')
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return f"{self.id}: {self.title}"
 
+class Watchlist(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    listings = models.ManyToManyField(AuctionListing)
+
+    def __str__(self):
+        return f"Watchlist {self.id} - User: {self.user.username}"
+  
 class Bids(models.Model):
     pass
 
