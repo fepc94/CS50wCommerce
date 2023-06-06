@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from auctions.models import AuctionListing, Bids
+from auctions.models import AuctionListing, Bid, Comment
 
 # Create the form class for auction listing
 class NewListing(ModelForm):
@@ -9,5 +9,11 @@ class NewListing(ModelForm):
 
 class PlaceBid(ModelForm):
     class Meta:
-        model = Bids
+        model = Bid
         fields = ['place_bid']
+
+class AddComment(ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['comment']
+

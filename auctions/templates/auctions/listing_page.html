@@ -21,22 +21,50 @@
         <h4>Item description from the seller</h4>
         <p>{{ listing.description }}</p>
         <p>Current Price: {{ listing.start_bid }}</p>
+
         {% if user.is_authenticated %}
-            {% if not bid_placed %}
-                <form method="post" action="{% url 'set_bid' listing.id %}">
-                    {% if form.errors %}
-                        <div class="alert alert-danger">
-                             {{ form.errors.place_bid }}
-                        </div>
-                    {% endif %}
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit">Place Bid</button>
-                </form>
+        
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-danger">
+                        {{ message }}
+                    </div>
+                {% endfor %}
             {% endif %}
+
+            <form method="post" action="{% url 'set_bid' listing.id %}">
+                {% csrf_token %}
+                {{ form1.as_div }}
+                <button type="submit" name="new_bid">Place Bid</button>
+            </form>
+
         {% endif %}
+
+        {% if user.is_authenticated %}
+            <form method="post" action="{% url 'add_comment' listing.id %}">
+                {% csrf_token %}
+                {{ form2.as_div }}
+                <button type="submit" name="new_comment">Add Comment</button>
+            </form>
+        {% endif %}
+
         <p>Category: {{ listing.category }}</p>
         <p>Published by: {{ listing.created_by.username }}</p>
+
+<!--- Ver si aca agregamos un slot para las fechas.   -->
+        {% if comments %}
+
+        <h3>Comments:</h3>
+
+            {% for comment in comments %}
+                
+              <p>User: {{ comment.user.username }}</p>
+              <p>Comment: {{ comment.comment }}</p>
+              <p>date: {{ comment.created_at }}</p>
+
+            {% endfor %}
+
+        {% endif %}
     </li>
 </ul>
 

@@ -40,11 +40,20 @@ class Watchlist(models.Model):
 
     def __str__(self):
         return f"Watchlist {self.id} - User: {self.user.username}"
-  
-class Bids(models.Model):
+
+class Bid(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     place_bid = models.DecimalField(max_digits=10, decimal_places=2)
     listings = models.ManyToManyField(AuctionListing)
 
-class Comments(models.Model):
-    pass
+    def __str__(self):
+        return f"Bid {self.id}"
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    comment = models.TextField(max_length=500, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True,  blank=True, null=True)
+    listings = models.ManyToManyField(AuctionListing)
+
+    def __str__(self):
+        return f"Comment {self.id}"

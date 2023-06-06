@@ -1,11 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
-from django.urls import reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
-from .models import AuctionListing, Watchlist
-from .forms import NewListing, PlaceBid
+from django.contrib import messages
+from .models import AuctionListing, Watchlist, Comment
+from .forms import NewListing, PlaceBid, AddComment
 
 from .models import User
 
@@ -26,12 +27,6 @@ def login_view(request):
         # Check if authentication successful
         if user is not None:
             login(request, user)
-
-            # create a watchlist for every user
-            try:
-                watchlist = Watchlist.objects.get(user=user)
-            except Watchlist.DoesNotExist:
-                watchlist = Watchlist.objects.create(user=user)
             return HttpResponseRedirect(reverse("index"))
         else:
             return render(request, "auctions/login.html", {
@@ -67,15 +62,28 @@ def register(request):
             return render(request, "auctions/register.html", {
                 "message": "Username already taken."
             })
-        login(request, user)            
+        login(request, user)      
+
+        # create a watchlist for every user
+        try:
+            watchlist = Watchlist.objects.get(user=user)
+        except Watchlist.DoesNotExist:
+            watchlist = Watchlist.objects.create(user=user)
+
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
 
 def listing_page(request, listing_id):
     listing = AuctionListing.objects.get(pk=listing_id)
-    form = PlaceBid()
-    return render(request, 'auctions/listing_page.html', {'listing' : listing, 'form' : form })
+    comments = Comment.objects.filter(listings=listing_id)
+    form1 = PlaceBid()
+    form2 = AddComment()
+    return render(request, 'auctions/listing_page.html', 
+        {'listing' : listing, 
+        'form1' : form1, 
+        'form2' : form2, 
+        'comments' : comments })
 
 @login_required
 def new_listing(request):
@@ -113,27 +121,56 @@ def remove_watchlist(request, listing_id):
 
 @login_required
 def set_bid(request, listing_id):
-    if request.method == 'POST':
-        form = PlaceBid(request.POST)
+    listing = AuctionListing.objects.get(pk=listing_id)
 
-        if form.is_valid():
-            new_bid = form.save()
-            #Track the user that place the bid
+    if request.method == 'POST':
+        form1 = PlaceBid(request.POST)
+
+        if form1.is_valid():
+            # commit = False prevents the form to store any bid to db
+            new_bid = form1.save(commit=False)
+
+            # assign the bid to the logged in user.
             new_bid.user = request.user
-            new_bid.save()
-            listing = AuctionListing.objects.get(pk=listing_id)
 
             if new_bid.place_bid > listing.start_bid:
+                new_bid.save()
                 listing.start_bid = new_bid.place_bid
                 listing.save()
+
                 return HttpResponseRedirect(reverse('listing_page', args=[listing_id]))
+            
             else:
                 error_message = "Your bid must be higher than the current price."
-                form.add_error('place_bid', error_message)
+                messages.error(request, error_message)
+                return HttpResponseRedirect(reverse('listing_page', args=[listing_id]))           
+ 
     else: 
-        form = PlaceBid()
+        form1 = PlaceBid()
 
-    return render(request, 'auctions/listing_page.html', {'form': form, 'listing': listing})
+    return render(request, 'auctions/listing_page.html', {'form': form1, 'listing': listing})
+
+@login_required
+def add_comment(request, listing_id):
+    listing = AuctionListing.objects.get(pk=listing_id)
+
+    if request.method == 'POST':
+        form2= AddComment(request.POST)
+
+        if form2.is_valid():
+            new_comment = form2.save()
+
+            #Track the user that place the bid
+            new_comment.user = request.user
+            new_comment.listings.add(listing)
+            new_comment.save()
+
+            return HttpResponseRedirect(reverse('listing_page', args=[listing_id]))
+
+    else: 
+        form2 = AddComment()
+
+    return render(request, 'auctions/listing_page.html', {'form': form2, 'listing': listing})
 
 
 
