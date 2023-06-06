@@ -2,8 +2,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .models import AuctionListing, Watchlist, Comment
 from .forms import NewListing, PlaceBid, AddComment
 
@@ -122,23 +123,28 @@ def remove_watchlist(request, listing_id):
 def set_bid(request, listing_id):
     listing = AuctionListing.objects.get(pk=listing_id)
 
-    if request.method == 'POST' and 'new_bid' in request.POST:
+    if request.method == 'POST':
         form1 = PlaceBid(request.POST)
 
         if form1.is_valid():
-            new_bid = form1.save()
-            #Track the user that place the bid
+            # commit = False prevents the form to store any bid to db
+            new_bid = form1.save(commit=False)
+
+            # assign the bid to the logged in user.
             new_bid.user = request.user
-            new_bid.save()
 
             if new_bid.place_bid > listing.start_bid:
+                new_bid.save()
                 listing.start_bid = new_bid.place_bid
                 listing.save()
+
                 return HttpResponseRedirect(reverse('listing_page', args=[listing_id]))
             
             else:
                 error_message = "Your bid must be higher than the current price."
-                form1.add_error('place_bid', error_message)
+                messages.error(request, error_message)
+                return HttpResponseRedirect(reverse('listing_page', args=[listing_id]))           
+ 
     else: 
         form1 = PlaceBid()
 
@@ -148,11 +154,12 @@ def set_bid(request, listing_id):
 def add_comment(request, listing_id):
     listing = AuctionListing.objects.get(pk=listing_id)
 
-    if request.method == 'POST' and 'new_comment' in request.POST:
+    if request.method == 'POST':
         form2= AddComment(request.POST)
 
         if form2.is_valid():
             new_comment = form2.save()
+
             #Track the user that place the bid
             new_comment.user = request.user
             new_comment.listings.add(listing)

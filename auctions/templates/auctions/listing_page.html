@@ -23,12 +23,20 @@
         <p>Current Price: {{ listing.start_bid }}</p>
 
         {% if user.is_authenticated %}
+        
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-danger">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
 
-        <form method="post" action="{% url 'set_bid' listing.id %}">
-            {% csrf_token %}
-            {{ form1.as_div }}
-            <button type="submit" name="new_bid">Place Bid</button>
-        </form>
+            <form method="post" action="{% url 'set_bid' listing.id %}">
+                {% csrf_token %}
+                {{ form1.as_div }}
+                <button type="submit" name="new_bid">Place Bid</button>
+            </form>
 
         {% endif %}
 
@@ -39,6 +47,7 @@
                 <button type="submit" name="new_comment">Add Comment</button>
             </form>
         {% endif %}
+
         <p>Category: {{ listing.category }}</p>
         <p>Published by: {{ listing.created_by.username }}</p>
 
