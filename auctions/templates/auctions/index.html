@@ -12,6 +12,7 @@
             <img src="{{ listing.image_url }}" alt="{{ listing.title }}">
             <p>{{ listing.description }}</p>
             <p>Current Price: {{ listing.start_bid }}</p>
+            <p>Date: {{ listing.pub_date }}</p>
         </li>
         {% endfor %}
     </ul>
