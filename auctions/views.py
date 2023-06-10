@@ -10,6 +10,17 @@ from .forms import NewListing, PlaceBid, AddComment
 
 from .models import User
 
+""" 
+TODO!!
+
+- If the user should have the ability to “close” the auction from this page, 
+which makes the highest bidder the winner of the auction and makes the 
+listing no longer active.
+
+- If a user is signed in on a closed listing page, and the user has won that 
+auction, the page should say so.
+
+"""
 
 def index(request):
     listings = AuctionListing.objects.all()
@@ -75,15 +86,25 @@ def register(request):
         return render(request, "auctions/register.html")
 
 def listing_page(request, listing_id):
+
     listing = AuctionListing.objects.get(pk=listing_id)
+    owner = listing.created_by
     comments = Comment.objects.filter(listings=listing_id)
     form1 = PlaceBid()
     form2 = AddComment()
+
+    if owner == request.user:
+
+        return render(request, 'auctions/listing_page.html', 
+                {'listing' : listing, 
+                'form2' : form2, 
+                'comments' : comments })
+
     return render(request, 'auctions/listing_page.html', 
-        {'listing' : listing, 
-        'form1' : form1, 
-        'form2' : form2, 
-        'comments' : comments })
+            {'listing' : listing, 
+            'form1' : form1, 
+            'form2' : form2, 
+            'comments' : comments })
 
 @login_required
 def new_listing(request):
@@ -138,6 +159,9 @@ def set_bid(request, listing_id):
                 listing.start_bid = new_bid.place_bid
                 listing.save()
 
+                succes_message = "Successful Bid !"
+                messages.success(request, succes_message)
+
                 return HttpResponseRedirect(reverse('listing_page', args=[listing_id]))
             
             else:
@@ -160,7 +184,7 @@ def add_comment(request, listing_id):
         if form2.is_valid():
             new_comment = form2.save()
 
-            #Track the user that place the bid
+            # track the user that place the bid
             new_comment.user = request.user
             new_comment.listings.add(listing)
             new_comment.save()

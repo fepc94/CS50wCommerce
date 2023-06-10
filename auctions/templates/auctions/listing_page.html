@@ -4,6 +4,20 @@
 
 {% if user.is_authenticated %}
 
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                <div class="alert alert-success">
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="alert alert-danger">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
     {% if listing in user.watchlist.listings.all %}
         <h5><a href="{% url 'remove_watchlist' listing.id %}">Remove from Watchlist</a></h5>
 
@@ -12,6 +26,8 @@
     {% endif %}
     
 {% endif %}
+
+<!-- Fijarse si conviene implementar un bid counter. -->
 
 <ul>
      <li>
@@ -22,15 +38,7 @@
         <p>{{ listing.description }}</p>
         <p>Current Price: {{ listing.start_bid }}</p>
 
-        {% if user.is_authenticated %}
-        
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-danger">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
+        {% if user.is_authenticated and user != listing.created_by %}
 
             <form method="post" action="{% url 'set_bid' listing.id %}">
                 {% csrf_token %}
@@ -50,6 +58,7 @@
 
         <p>Category: {{ listing.category }}</p>
         <p>Published by: {{ listing.created_by.username }}</p>
+        <p>Date: {{ listing.pub_date }}</p>
 
 <!--- Ver si aca agregamos un slot para las fechas.   -->
         {% if comments %}
