@@ -13,12 +13,16 @@ from .models import User
 """ 
 TODO!!
 
-- If the user should have the ability to “close” the auction from this page, 
-which makes the highest bidder the winner of the auction and makes the 
-listing no longer active.
-
-- If a user is signed in on a closed listing page, and the user has won that 
+If a user is signed in on a closed listing page, and the user has won that 
 auction, the page should say so.
+
+Categories: Users should be able to visit a page that displays a list of all listing categories. 
+Clicking on the name of any category should take the user to a page that displays all of the 
+active listings in that category. 
+
+Django Admin Interface: Via the Django admin interface, a site administrator 
+should be able to view, add, edit, and delete any listings, comments, and bids 
+made on the site.
 
 """
 
@@ -162,6 +166,9 @@ def set_bid(request, listing_id):
                 succes_message = "Successful Bid !"
                 messages.success(request, succes_message)
 
+                # Add the listing to the new bid
+                new_bid.listings.add(listing)
+
                 return HttpResponseRedirect(reverse('listing_page', args=[listing_id]))
             
             else:
@@ -186,6 +193,7 @@ def add_comment(request, listing_id):
 
             # track the user that place the bid
             new_comment.user = request.user
+            # Add the listing to the new comment
             new_comment.listings.add(listing)
             new_comment.save()
 
