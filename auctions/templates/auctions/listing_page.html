@@ -60,6 +60,12 @@
         <p>Published by: {{ listing.created_by.username }}</p>
         <p>Date: {{ listing.pub_date }}</p>
 
+        {% if user.is_authenticated and user == listing.created_by %}
+
+            <h5><a href="{% url 'close_listing' listing.id %}">Close Listing</a></h5>
+
+        {% endif %}
+
 <!--- Ver si aca agregamos un slot para las fechas.   -->
         {% if comments %}
 

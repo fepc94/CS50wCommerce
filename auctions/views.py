@@ -196,6 +196,10 @@ def add_comment(request, listing_id):
 
     return render(request, 'auctions/listing_page.html', {'form': form2, 'listing': listing})
 
-
-
+@login_required()
+def close_listing(request, listing_id):
+    listing = AuctionListing.objects.get(pk=listing_id)
+    listing.active_status = False
+    listing.save()
+    return HttpResponseRedirect(reverse("index"))
         
