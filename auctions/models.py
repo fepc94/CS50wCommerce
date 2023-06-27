@@ -22,6 +22,7 @@ class AuctionListing(models.Model):
         ('Electronics', 'Electornics'),
         ('Home', 'Home'),
         ('Outdoors', 'Outdoors'),
+        ('Books', 'Books'),
     ]
 
     title = models.CharField(max_length=200)
@@ -31,6 +32,7 @@ class AuctionListing(models.Model):
     category = models.CharField(max_length=12, choices= CATEGORY, blank=True, default='')
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     pub_date = models.DateTimeField(auto_now_add=True,  blank=True, null=True)
+    active_status = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.id}: {self.title}"

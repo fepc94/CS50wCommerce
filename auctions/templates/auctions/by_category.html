@@ -1,9 +1,8 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
-
     {% if listings %}
+    <h2>Listings of Category {{ listings.category }}</h2>
     <ul>
         {% for listing in listings %}
             {% if listing.active_status == True %}
@@ -20,7 +19,7 @@
     </ul>
 
     {% else %}
-        <p>There are no Active Listings</p>
+        <p>There are no listings for this category </p>
     {% endif %}
     
     

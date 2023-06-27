@@ -5,21 +5,16 @@ from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import AuctionListing, Watchlist, Comment
+from .models import AuctionListing, Watchlist, Comment, Bid
 from .forms import NewListing, PlaceBid, AddComment
 
 from .models import User
 
 """ 
 TODO!!
-
-- If the user should have the ability to “close” the auction from this page, 
-which makes the highest bidder the winner of the auction and makes the 
-listing no longer active.
-
-- If a user is signed in on a closed listing page, and the user has won that 
-auction, the page should say so.
-
+Django Admin Interface: Via the Django admin interface, a site administrator 
+should be able to view, add, edit, and delete any listings, comments, and bids 
+made on the site.
 """
 
 def index(request):
@@ -100,11 +95,37 @@ def listing_page(request, listing_id):
                 'form2' : form2, 
                 'comments' : comments })
 
-    return render(request, 'auctions/listing_page.html', 
-            {'listing' : listing, 
-            'form1' : form1, 
-            'form2' : form2, 
-            'comments' : comments })
+    elif listing.active_status == False:
+
+        max_bid = Bid.objects.get(place_bid=listing.start_bid)
+        user_won = max_bid.user_id
+        
+        if request.user.id == user_won:
+
+            succes_message = " Congratulations, you won this Auction !"
+            messages.success(request, succes_message)
+
+            return render(request, 'auctions/listing_page.html', 
+                    {'listing' : listing, 
+                    'form2' : form2, 
+                    'comments' : comments })
+
+        else:
+
+            error_message = "This Listing has been closed."
+            messages.error(request, error_message)
+
+            return render(request, 'auctions/listing_page.html', 
+                    {'listing' : listing, 
+                    'form2' : form2, 
+                    'comments' : comments })
+
+    else:
+        return render(request, 'auctions/listing_page.html', 
+                {'listing' : listing, 
+                'form1' : form1, 
+                'form2' : form2, 
+                'comments' : comments })
 
 @login_required
 def new_listing(request):
@@ -162,6 +183,9 @@ def set_bid(request, listing_id):
                 succes_message = "Successful Bid !"
                 messages.success(request, succes_message)
 
+                # Add the listing to the new bid
+                new_bid.listings.add(listing)
+
                 return HttpResponseRedirect(reverse('listing_page', args=[listing_id]))
             
             else:
@@ -186,8 +210,12 @@ def add_comment(request, listing_id):
 
             # track the user that place the bid
             new_comment.user = request.user
+            # Add the listing to the new comment
             new_comment.listings.add(listing)
             new_comment.save()
+
+            succes_message = "Successful Comment !"
+            messages.success(request, succes_message)
 
             return HttpResponseRedirect(reverse('listing_page', args=[listing_id]))
 
@@ -196,6 +224,18 @@ def add_comment(request, listing_id):
 
     return render(request, 'auctions/listing_page.html', {'form': form2, 'listing': listing})
 
-
-
+@login_required()
+def close_listing(request, listing_id):
+    listing = AuctionListing.objects.get(pk=listing_id)
+    listing.active_status = False
+    listing.save()
+    return HttpResponseRedirect(reverse("index"))
         
+def categories(request):
+    categories = AuctionListing.CATEGORY
+    return render(request, 'auctions/categories.html', {'categories': categories})
+
+def list_by_category(request, cat):
+    listings = AuctionListing.objects.filter(category=cat)
+    print(listings)
+    return render(request, 'auctions/by_category.html', {'listings': listings})
