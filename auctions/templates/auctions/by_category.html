@@ -1,0 +1,26 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    {% if listings %}
+    <h2>Listings of Category {{ listings.category }}</h2>
+    <ul>
+        {% for listing in listings %}
+            {% if listing.active_status == True %}
+                <li> 
+                    {% load static %} 
+                    <h3><a href="{% url 'listing_page' listing.id %}">{{ listing.title }}</a></h3>
+                    <img src="{{ listing.image_url }}" alt="{{ listing.title }}">
+                    <p>{{ listing.description }}</p>
+                    <p>Current Price: {{ listing.start_bid }}</p>
+                    <p>Date: {{ listing.pub_date }}</p>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+    {% else %}
+        <p>There are no listings for this category </p>
+    {% endif %}
+    
+    
+{% endblock %}
