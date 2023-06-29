@@ -17,3 +17,6 @@ class AddComment(ModelForm):
         model = Comment
         fields = ['comment']
 
+'''
+TODO: https://www.youtube.com/watch?v=6-XXvUENY_8 Para hacer el FRONTEND
+'''

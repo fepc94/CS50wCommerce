@@ -3,8 +3,10 @@
 {% block body %}
     <h2>Create New Listing</h2>
     <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Create Listing</button>
+        <div class="mb-3">
+            {% csrf_token %}
+            {{ form.as_p }}
+        </div>
+        <button class="btn btn-primary" type="submit">Create Listing</button>
     </form>
 {% endblock %}
