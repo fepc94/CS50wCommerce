@@ -23,6 +23,7 @@ class AuctionListing(models.Model):
         ('Home', 'Home'),
         ('Outdoors', 'Outdoors'),
         ('Books', 'Books'),
+        ('Music', 'Music'),
     ]
 
     title = models.CharField(max_length=200)
