@@ -4,11 +4,25 @@
 
 {% if user.is_authenticated %}
 
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                <div class="alert alert-success">
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="alert alert-danger">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
     {% if listing in user.watchlist.listings.all %}
-        <h5><a href="{% url 'remove_watchlist' listing.id %}">Remove from Watchlist</a></h5>
+        <h5><a class="btn btn-primary" href="{% url 'remove_watchlist' listing.id %}">Remove from Watchlist</a></h5>
 
     {% else %}
-        <h5><a href="{% url 'add_watchlist' listing.id %}">Add to Watchlist</a></h5>
+        <h5><a class="btn btn-primary" href="{% url 'add_watchlist' listing.id %}">Add to Watchlist</a></h5>
     {% endif %}
     
 {% endif %}
@@ -20,9 +34,54 @@
         <img src="{{ listing.image_url }}" alt="{{ listing.title }}">
         <h4>Item description from the seller</h4>
         <p>{{ listing.description }}</p>
-        <p>Current Price: {{ listing.start_bid }}</p>
+        <h5>Current Price: {{ listing.start_bid }}</h5>
+
+        {% if user.is_authenticated and user != listing.created_by and listing.active_status != False %}
+
+        <div class="mb-3">
+            <form method="post" action="{% url 'set_bid' listing.id %}">
+                {% csrf_token %}
+                {{ form1.as_p }}
+                <button class="btn btn-primary me-md-2" type="submit" name="new_bid">Place Bid</button>
+            </form>
+        </div>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+
+        <div class="mb-3">
+            <form method="post" action="{% url 'add_comment' listing.id %}">
+                {% csrf_token %}
+                {{ form2.as_p }}
+                <button class="btn btn-primary me-md-2" type="submit" name="new_comment">Add Comment</button>
+            </form>
+        </div>
+
+        {% endif %}
+
         <p>Category: {{ listing.category }}</p>
         <p>Published by: {{ listing.created_by.username }}</p>
+        <p>Date: {{ listing.pub_date }}</p>
+
+        {% if user.is_authenticated and user == listing.created_by %}
+
+            <h5><a class="btn btn-primary" href="{% url 'close_listing' listing.id %}" role="button">Close Listing</a></h5>
+
+        {% endif %}
+
+        {% if comments %}
+
+        <h3>Comments:</h3>
+
+            {% for comment in comments %}
+                
+              <p>User: {{ comment.user.username }}</p>
+              <p>Comment: {{ comment.comment }}</p>
+              <p>date: {{ comment.created_at }}</p>
+
+            {% endfor %}
+
+        {% endif %}
     </li>
 </ul>
 

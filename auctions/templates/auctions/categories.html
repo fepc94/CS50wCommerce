@@ -1,0 +1,9 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+{% for title, description in categories %}
+    <button type="button" class="btn btn-primary"><a id="categories" href="{% url 'list_by_category' cat=description %}">{{ description }}</a></button>
+{% endfor %}
+
+{% endblock %}
