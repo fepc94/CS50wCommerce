@@ -10,13 +10,6 @@ from .forms import NewListing, PlaceBid, AddComment
 
 from .models import User
 
-""" 
-TODO!!
-Django Admin Interface: Via the Django admin interface, a site administrator 
-should be able to view, add, edit, and delete any listings, comments, and bids 
-made on the site.
-"""
-
 def index(request):
     listings = AuctionListing.objects.all()
     return render(request, "auctions/index.html", {'listings' : listings})
