@@ -2,11 +2,11 @@
 
 {% block body %}
     <h2>Create New Listing</h2>
-    <form method="post">
-        <div class="mb-3">
+    <div class="mb-3">
+        <form method="post">
             {% csrf_token %}
             {{ form.as_p }}
-        </div>
-        <button class="btn btn-primary" type="submit">Create Listing</button>
-    </form>
+            <button class="btn btn-primary me-md-2"  type="submit">Create Listing</button>
+        </form>
+    </div>
 {% endblock %}

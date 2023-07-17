@@ -1,3 +1,19 @@
 body {
     padding: 10px;
 }
+
+.form-control {
+    width : 55%;
+}
+
+#categories {
+    color : white;
+}
+
+.card {
+max-height: fit-content;
+}
+
+.mx-4 {
+    margin-bottom: 1.5rem!important;
+}
