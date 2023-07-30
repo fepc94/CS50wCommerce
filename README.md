@@ -2,9 +2,7 @@
 
 ## Project3
 
-Project1
-
-This is my implemantation of Project2 - Commerce - from CS50 Web Programming course.
+This is my implemantation of Project3 - Commerce - from CS50 Web Programming course.
 
 Commerce is an eBay-like e-commerce auction site that will allow users to post auction listings, place bids on listings, comment on those listings, and add listings to a “watchlist.”
 
